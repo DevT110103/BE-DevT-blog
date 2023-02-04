@@ -1,7 +1,7 @@
 import { Product, Response } from '.';
 
 interface ResponseProduct extends Response {
-  data: Product;
+  data: Product[];
 }
 
 export { ResponseProduct };
