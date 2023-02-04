@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+dotenv.config();
 
-export const sequelize = new Sequelize('blog-api', 'root', '', {
+export const sequelize = new Sequelize(process.env.DB_NAME || '', process.env.USER_NAME || '', process.env.PASSWORD, {
   host: 'localhost',
   dialect: 'mysql',
 });
@@ -9,7 +11,9 @@ let connectDB = async () => {
   try {
     await sequelize.authenticate();
     console.log('Connected successfully!');
-  } catch {
+  } catch (e) {
+    console.log('e ->', e);
+
     console.log('Connected fail!');
   }
 };
