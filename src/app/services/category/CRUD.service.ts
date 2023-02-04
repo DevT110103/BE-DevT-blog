@@ -31,28 +31,44 @@ class CRUDCategory {
 
   createCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
+      const nameCategory: string = req.body.name;
+      const thumbnailID: number = Number(req.body.thumbnail_id);
+      const isExistsName = await db.Category.count({
+        where: {
+          name: nameCategory,
+        },
+      });
+
       try {
-        const nameCategory = String(req.body.name);
-        if (nameCategory.length <= 0 || !nameCategory) {
+        if (!nameCategory) {
           response.status = 400;
           response.error = true;
           response.message = 'Name is empty';
           reject(response);
+        } else if (!thumbnailID || isNaN(thumbnailID) || thumbnailID <= 0) {
+          response.status = 400;
+          response.error = true;
+          response.message = 'Thumbnail ID is valid';
+          reject(response);
+        } else if (isExistsName >= 1) {
+          response.status = 400;
+          response.error = true;
+          response.message = 'Name category is exists';
+          response.data = {};
+          reject(response);
         } else {
           const newCategory = new db.Category();
-
           newCategory.name = nameCategory;
-
-          newCategory.save();
-
+          newCategory.thumbnail_id = thumbnailID;
+          await newCategory.save();
           response.data = newCategory as CategoryDB;
-
           resolve(response);
         }
-      } catch {
+      } catch (e) {
         response.status = 400;
         response.error = true;
         response.message = 'Create failed';
+        response.data = {};
         reject(response);
       }
     });
