@@ -7,5 +7,6 @@ import categoryController from '../app/controllers/CategoryController';
 router.get('/', categoryController.index);
 router.get('/get-product', categoryController.getProducts);
 router.post('/create', categoryController.create);
+router.post('/search', categoryController.search);
 
 export default router;
