@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 
 import { sequelize } from '../../../configs/connectDatabase';
 import { CategoryDB } from '../../../interfaces/category.interface';
+import getItem from '../components/getItem';
 const db = require('../../../database/models');
 
 const response = {
@@ -10,27 +11,22 @@ const response = {
   message: 'Successfully!',
   data: {},
 };
-
 class CRUDCategory {
-  getAllCategories() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const [result, metadata] = await sequelize.query(
-          'SELECT categories.id, name, categories.createdAt, categories.updatedAt, thumbnail FROM `categories` INNER JOIN `thumbnails` ON categories.thumbnail_id = thumbnails.id'
-        );
-        response.data = result;
-        resolve(response);
-      } catch (e) {
-        response.status = 400;
-        response.error = true;
-        response.message = 'Get all categories failed';
-        reject(response);
-      }
-    });
+  getAllCategories(req: Request) {
+    const query =
+      'SELECT categories.id, name, categories.createdAt, categories.updatedAt, thumbnail FROM `categories` INNER JOIN `thumbnails` ON categories.thumbnail_id = thumbnails.id';
+    return getItem(req, db.Category, query);
   }
 
   createCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
+      const response = {
+        status: 200,
+        error: false,
+        message: 'Successfully!',
+        data: {},
+      };
+
       const nameCategory: string = req.body.name;
       const thumbnailID: number = Number(req.body.thumbnail_id);
       const isExistsName = await db.Category.count({
@@ -69,6 +65,49 @@ class CRUDCategory {
         response.error = true;
         response.message = 'Create failed';
         response.data = {};
+        reject(response);
+      }
+    });
+  }
+
+  getAllProduct(req: Request) {
+    return new Promise(async (resolve, reject) => {
+      const response = {
+        status: 200,
+        error: false,
+        message: 'Successfully!',
+        data: {},
+      };
+
+      const id: number = Number(req.query.id);
+
+      try {
+        if (!id || id <= 0 || isNaN(id)) {
+          response.status = 400;
+          response.error = true;
+          response.message = 'id is valid';
+          response.data = {};
+          reject(response);
+        } else {
+          let query =
+            'SELECT products.id, title, products.sub_title, products.desc, categories.name AS category_name, thumbnail, products.createdAt, products.updatedAt ';
+          query += 'FROM products INNER JOIN categories ON products.category_id = categories.id INNER JOIN thumbnails ';
+          query += `ON products.thumbnail_id = thumbnails.id WHERE category_id = ${id};`;
+
+          const [result] = await sequelize.query(query);
+
+          if (result.length <= 0) {
+            response.message = 'List empty';
+          }
+
+          response.data = result;
+          resolve(response);
+        }
+      } catch {
+        response.status = 400;
+        response.error = true;
+        response.data = {};
+        response.message = 'Get category failed';
         reject(response);
       }
     });

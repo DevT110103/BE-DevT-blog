@@ -5,6 +5,7 @@ const router = express.Router();
 import categoryController from '../app/controllers/CategoryController';
 
 router.get('/', categoryController.index);
+router.get('/get-product', categoryController.getProducts);
 router.post('/create', categoryController.create);
 
 export default router;
