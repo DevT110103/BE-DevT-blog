@@ -13,8 +13,7 @@ const response = {
 };
 class CRUDCategory {
   getAllCategories(req: Request) {
-    const query =
-      'SELECT categories.id, name, categories.createdAt, categories.updatedAt, thumbnail FROM `categories` INNER JOIN `thumbnails` ON categories.thumbnail_id = thumbnails.id';
+    const query = 'select * from categories';
     return getItem(req, db.Category, query);
   }
 

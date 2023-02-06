@@ -34,8 +34,6 @@ class SearchCategory {
         if (result === null) {
           resolve(response);
         } else {
-          console.log('() ->', result);
-
           response.data = result;
 
           resolve(response);

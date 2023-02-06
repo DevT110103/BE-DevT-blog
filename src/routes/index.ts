@@ -4,8 +4,10 @@ import productRouter from './product.routes';
 import categoriesRouter from './category.routes';
 
 function route(app: Express) {
-  app.use('/products', productRouter);
-  app.use('/categories', categoriesRouter);
+  const endPointURL = '/api/v1';
+
+  app.use(endPointURL + '/products', productRouter);
+  app.use(endPointURL + '/categories', categoriesRouter);
 }
 
 export default route;

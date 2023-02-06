@@ -13,15 +13,8 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true,
       },
-      thumbnail_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Thumbnails',
-          key: 'id',
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade',
+      thumbnail: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

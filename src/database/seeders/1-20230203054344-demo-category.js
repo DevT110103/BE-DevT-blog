@@ -3,32 +3,28 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.bulkInsert('Products', [
+    return queryInterface.bulkInsert('Categories', [
       {
-        title: 'Web bán hàng',
-        sub_title: '1 web bán hàng vippro hehehe',
-        thumbnail_id: 1,
-        category_id: 1,
+        name: 'Web',
+        thumbnail: 'http://localhost:8080/images/thumnail-1.png',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        title: 'Web block chain',
-        thumbnail_id: 1,
-        category_id: 3,
+        name: 'Game',
+        thumbnail: 'http://localhost:8080/images/thumnail-1.png',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        title: 'Web game',
-        thumbnail_id: 1,
-        category_id: 1,
+        name: 'Learn code',
+        thumbnail: 'http://localhost:8080/images/thumnail-1.png',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     ]);
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Products', null, {});
+    return queryInterface.bulkDelete('Categories', null, {});
   },
 };
