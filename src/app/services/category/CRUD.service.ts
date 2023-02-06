@@ -27,7 +27,7 @@ class CRUDCategory {
       };
 
       const nameCategory: string = req.body.name;
-      const thumbnailID: number = Number(req.body.thumbnail_id);
+      const thumbnailCategory: string = req.body.thumbnail;
       const isExistsName = await db.Category.count({
         where: {
           name: nameCategory,
@@ -40,7 +40,7 @@ class CRUDCategory {
           response.error = true;
           response.message = 'Name is empty';
           reject(response);
-        } else if (!thumbnailID || isNaN(thumbnailID) || thumbnailID <= 0) {
+        } else if (!thumbnailCategory) {
           response.status = 400;
           response.error = true;
           response.message = 'Thumbnail ID is valid';
@@ -54,12 +54,14 @@ class CRUDCategory {
         } else {
           const newCategory = new db.Category();
           newCategory.name = nameCategory;
-          newCategory.thumbnail_id = thumbnailID;
+          newCategory.thumbnail = thumbnailCategory;
           await newCategory.save();
           response.data = newCategory as CategoryDB;
           resolve(response);
         }
       } catch (e) {
+        console.log('e ->', e);
+
         response.status = 400;
         response.error = true;
         response.message = 'Create failed';
@@ -88,10 +90,9 @@ class CRUDCategory {
           response.data = {};
           reject(response);
         } else {
-          let query =
-            'SELECT products.id, title, products.sub_title, products.desc, categories.name AS category_name, thumbnail, products.createdAt, products.updatedAt ';
-          query += 'FROM products INNER JOIN categories ON products.category_id = categories.id INNER JOIN thumbnails ';
-          query += `ON products.thumbnail_id = thumbnails.id WHERE category_id = ${id};`;
+          const query =
+            'SELECT products.id, products.title, products.sub_title, products.thumbnail, products.desc,products.createdAt,products.updatedAt ' +
+            `FROM products INNER JOIN categories ON products.category_id = categories.id WHERE category_id = ${id}`;
 
           const [result] = await sequelize.query(query);
 
