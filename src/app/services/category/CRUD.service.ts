@@ -1,8 +1,10 @@
 import { Request } from 'express';
+import { unlink } from 'fs';
 
 import { sequelize } from '../../../configs/connectDatabase';
 import { CategoryDB } from '../../../interfaces/category.interface';
 import getItem from '../components/getItem';
+import { replaceStringUnicode } from '../../middlewares/Uploads.middlewares';
 const db = require('../../../database/models');
 
 const response = {
@@ -26,42 +28,40 @@ class CRUDCategory {
         data: {},
       };
 
-      const nameCategory: string = req.body.name;
-      const thumbnailCategory: string = req.body.thumbnail;
-      const isExistsName = await db.Category.count({
-        where: {
-          name: nameCategory,
-        },
-      });
-
       try {
-        if (!nameCategory) {
+        const name = req.body.nameCategory;
+        const image = req.file;
+
+        const isExistsName = await db.Category.findOne({
+          where: {
+            name: name,
+          },
+        });
+
+        if (!name || !image || isExistsName) {
+          if (isExistsName && image) {
+            unlink(`./src/public/uploads/${image.filename}`, (err) => {});
+          }
+
           response.status = 400;
-          response.error = true;
-          response.message = 'Name is empty';
-          reject(response);
-        } else if (!thumbnailCategory) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'Thumbnail ID is valid';
-          reject(response);
-        } else if (isExistsName >= 1) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'Name category is exists';
           response.data = {};
+          response.error = true;
+          response.message = 'Failed';
           reject(response);
         } else {
-          const newCategory = new db.Category();
-          newCategory.name = nameCategory;
-          newCategory.thumbnail = thumbnailCategory;
-          await newCategory.save();
-          response.data = newCategory as CategoryDB;
+          let path: string = '';
+          if (process.env.NODE_ENV === 'development') {
+            path = `http://127.0.0.1:8080/uploads/${image.filename}`;
+          } else {
+            path = ``;
+          }
+          const thumbnail = path;
+
+          const data = await db.Category.create({ name, thumbnail });
+          response.data = data as CategoryDB;
           resolve(response);
         }
       } catch (e) {
-        console.log('e ->', e);
-
         response.status = 400;
         response.error = true;
         response.message = 'Create failed';
