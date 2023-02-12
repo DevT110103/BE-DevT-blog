@@ -8,10 +8,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Product.belongsTo(models.Thumbnail, {
-        foreignKey: 'thumbnail_id',
-        as: 'thumbnail',
-      });
       Product.belongsTo(models.Category, {
         foreignKey: 'category_id',
         as: 'category',
@@ -23,8 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       title: DataTypes.STRING,
       sub_title: DataTypes.STRING,
+      thumbnail: DataTypes.STRING,
       desc: DataTypes.STRING,
-      thumbnail_id: DataTypes.INTEGER,
       category_id: DataTypes.INTEGER,
     },
     {

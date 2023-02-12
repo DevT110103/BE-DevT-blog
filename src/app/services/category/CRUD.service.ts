@@ -1,114 +1,95 @@
 import { Request } from 'express';
+import { unlink } from 'fs';
 
-import { sequelize } from '../../../configs/connectDatabase';
+import { Response as ResponseInterface } from '../../../interfaces';
 import { CategoryDB } from '../../../interfaces/category.interface';
 import getItem from '../components/getItem';
+import logger from '../../../utils/logger';
+import resultResponse from '../../../utils/response';
 const db = require('../../../database/models');
 
-const response = {
-  status: 200,
-  error: false,
-  message: 'Successfully!',
-  data: {},
-};
 class CRUDCategory {
   getAllCategories(req: Request) {
-    const query =
-      'SELECT categories.id, name, categories.createdAt, categories.updatedAt, thumbnail FROM `categories` INNER JOIN `thumbnails` ON categories.thumbnail_id = thumbnails.id';
+    const query = 'select * from categories';
     return getItem(req, db.Category, query);
   }
 
   createCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
-      const response = {
-        status: 200,
-        error: false,
-        message: 'Successfully!',
-        data: {},
-      };
-
-      const nameCategory: string = req.body.name;
-      const thumbnailID: number = Number(req.body.thumbnail_id);
-      const isExistsName = await db.Category.count({
-        where: {
-          name: nameCategory,
-        },
-      });
-
       try {
-        if (!nameCategory) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'Name is empty';
-          reject(response);
-        } else if (!thumbnailID || isNaN(thumbnailID) || thumbnailID <= 0) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'Thumbnail ID is valid';
-          reject(response);
-        } else if (isExistsName >= 1) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'Name category is exists';
-          response.data = {};
-          reject(response);
+        const name: string = req.body.nameCategory.trim();
+        const image = req.file;
+
+        const isExistsName = await db.Category.findOne({
+          where: {
+            name: name,
+          },
+        });
+
+        if (!name || !image || isExistsName) {
+          if (isExistsName && image) {
+            unlink(`./src/public/uploads/${image.filename}`, (err) => {});
+          }
+          reject(resultResponse('Failed', {}, 500));
         } else {
-          const newCategory = new db.Category();
-          newCategory.name = nameCategory;
-          newCategory.thumbnail_id = thumbnailID;
-          await newCategory.save();
-          response.data = newCategory as CategoryDB;
-          resolve(response);
+          let path: string = '';
+          if (process.env.NODE_ENV === 'development') {
+            path = `http://127.0.0.1:8080/uploads/${image.filename}`;
+          } else {
+            path = ``;
+          }
+          const thumbnail = path;
+
+          const data = await db.Category.create({ name, thumbnail });
+
+          resolve(resultResponse('Success', data));
         }
       } catch (e) {
-        response.status = 400;
-        response.error = true;
-        response.message = 'Create failed';
-        response.data = {};
-        reject(response);
+        logger.error(e);
+        reject(resultResponse('Failed', {}, 500));
       }
     });
   }
 
-  getAllProduct(req: Request) {
+  deleteCategories(req: Request) {
     return new Promise(async (resolve, reject) => {
-      const response = {
-        status: 200,
-        error: false,
-        message: 'Successfully!',
-        data: {},
-      };
-
       const id: number = Number(req.query.id);
-
       try {
-        if (!id || id <= 0 || isNaN(id)) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'id is valid';
-          response.data = {};
-          reject(response);
+        if (id <= 0 || isNaN(id)) {
+          reject(resultResponse('Id Is Valid', {}, 404));
         } else {
-          let query =
-            'SELECT products.id, title, products.sub_title, products.desc, categories.name AS category_name, thumbnail, products.createdAt, products.updatedAt ';
-          query += 'FROM products INNER JOIN categories ON products.category_id = categories.id INNER JOIN thumbnails ';
-          query += `ON products.thumbnail_id = thumbnails.id WHERE category_id = ${id};`;
+          const countExists = await db.Category.count({
+            where: {
+              id,
+            },
+          });
 
-          const [result] = await sequelize.query(query);
-
-          if (result.length <= 0) {
-            response.message = 'List empty';
+          if (countExists <= 0) {
+            reject(resultResponse('Category is not exists', {}, 400));
+          } else {
+            await db.Category.destroy({
+              where: {
+                id: id,
+              },
+            });
+            resolve(resultResponse('Delete success', {}));
           }
-
-          response.data = result;
-          resolve(response);
         }
-      } catch {
-        response.status = 400;
-        response.error = true;
-        response.data = {};
-        response.message = 'Get category failed';
-        reject(response);
+      } catch (e) {
+        logger.error(e);
+
+        reject(resultResponse('Delete Failed', {}, 500));
+      }
+    });
+  }
+
+  updateCategory(req: Request) {
+    return new Promise(async (resolve, reject) => {
+      try {
+      } catch (e) {
+        logger.error(e);
+
+        reject(resultResponse('Update Failed', {}, 500));
       }
     });
   }

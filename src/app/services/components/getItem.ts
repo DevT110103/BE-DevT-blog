@@ -3,7 +3,7 @@ import { sequelize } from '../../../configs/connectDatabase';
 
 function getItem(req: Request, model: any, query: string) {
   return new Promise(async (resolve, reject) => {
-    const idCategory: number = Number(req.query.id);
+    const id: number = Number(req.query.id);
     const response = {
       status: 200,
       error: false,
@@ -12,34 +12,37 @@ function getItem(req: Request, model: any, query: string) {
     };
 
     try {
-      if (isNaN(idCategory) || !idCategory || idCategory <= 0) {
+      if (isNaN(id) || !id || id <= 0) {
         const [result, metadata] = await sequelize.query(query);
         response.data = result;
         resolve(response);
       } else {
-        const category = await model.findOne({
+        const dataDb = await model.findOne({
           where: {
-            id: idCategory,
+            id: id,
           },
         });
-        if (category == null) {
+
+        if (dataDb == null) {
           response.data = {};
           response.error = true;
-          response.message = 'Category not found';
+          response.message = 'dataDb not found';
           response.status = 404;
           reject(response);
         } else {
-          response.data = category;
+          response.data = dataDb;
           response.status = 200;
-          response.message = 'Get category success';
+          response.message = 'Get dataDb success';
           response.error = false;
           resolve(response);
         }
       }
     } catch (e) {
+      console.log('e ->', e);
+
       response.status = 400;
       response.error = true;
-      response.message = 'Get all categories failed';
+      response.message = 'Get all đâtB failed';
       reject(response);
     }
   });
