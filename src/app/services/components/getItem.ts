@@ -42,7 +42,7 @@ function getItem(req: Request, model: any, query: string) {
 
       response.status = 400;
       response.error = true;
-      response.message = 'Get all categories failed';
+      response.message = 'Get all đâtB failed';
       reject(response);
     }
   });

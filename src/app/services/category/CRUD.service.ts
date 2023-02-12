@@ -1,18 +1,13 @@
 import { Request } from 'express';
 import { unlink } from 'fs';
 
-import { sequelize } from '../../../configs/connectDatabase';
+import { Response as ResponseInterface } from '../../../interfaces';
 import { CategoryDB } from '../../../interfaces/category.interface';
 import getItem from '../components/getItem';
-import { replaceStringUnicode } from '../../middlewares/Uploads.middlewares';
+import logger from '../../../utils/logger';
+import resultResponse from '../../../utils/response';
 const db = require('../../../database/models');
 
-const response = {
-  status: 200,
-  error: false,
-  message: 'Successfully!',
-  data: {},
-};
 class CRUDCategory {
   getAllCategories(req: Request) {
     const query = 'select * from categories';
@@ -21,15 +16,8 @@ class CRUDCategory {
 
   createCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
-      const response = {
-        status: 200,
-        error: false,
-        message: 'Successfully!',
-        data: {},
-      };
-
       try {
-        const name = req.body.nameCategory;
+        const name: string = req.body.nameCategory.trim();
         const image = req.file;
 
         const isExistsName = await db.Category.findOne({
@@ -42,12 +30,7 @@ class CRUDCategory {
           if (isExistsName && image) {
             unlink(`./src/public/uploads/${image.filename}`, (err) => {});
           }
-
-          response.status = 400;
-          response.data = {};
-          response.error = true;
-          response.message = 'Failed';
-          reject(response);
+          reject(resultResponse('Failed', {}, 500));
         } else {
           let path: string = '';
           if (process.env.NODE_ENV === 'development') {
@@ -58,57 +41,55 @@ class CRUDCategory {
           const thumbnail = path;
 
           const data = await db.Category.create({ name, thumbnail });
-          response.data = data as CategoryDB;
-          resolve(response);
+
+          resolve(resultResponse('Success', data));
         }
       } catch (e) {
-        response.status = 400;
-        response.error = true;
-        response.message = 'Create failed';
-        response.data = {};
-        reject(response);
+        logger.error(e);
+        reject(resultResponse('Failed', {}, 500));
       }
     });
   }
 
-  getAllProduct(req: Request) {
+  deleteCategories(req: Request) {
     return new Promise(async (resolve, reject) => {
-      const response = {
-        status: 200,
-        error: false,
-        message: 'Successfully!',
-        data: {},
-      };
-
       const id: number = Number(req.query.id);
-
       try {
-        if (!id || id <= 0 || isNaN(id)) {
-          response.status = 400;
-          response.error = true;
-          response.message = 'id is valid';
-          response.data = {};
-          reject(response);
+        if (id <= 0 || isNaN(id)) {
+          reject(resultResponse('Id Is Valid', {}, 404));
         } else {
-          const query =
-            'SELECT products.id, products.title, products.sub_title, products.thumbnail, products.desc,products.createdAt,products.updatedAt ' +
-            `FROM products INNER JOIN categories ON products.category_id = categories.id WHERE category_id = ${id}`;
+          const countExists = await db.Category.count({
+            where: {
+              id,
+            },
+          });
 
-          const [result] = await sequelize.query(query);
-
-          if (result.length <= 0) {
-            response.message = 'List empty';
+          if (countExists <= 0) {
+            reject(resultResponse('Category is not exists', {}, 400));
+          } else {
+            await db.Category.destroy({
+              where: {
+                id: id,
+              },
+            });
+            resolve(resultResponse('Delete success', {}));
           }
-
-          response.data = result;
-          resolve(response);
         }
-      } catch {
-        response.status = 400;
-        response.error = true;
-        response.data = {};
-        response.message = 'Get category failed';
-        reject(response);
+      } catch (e) {
+        logger.error(e);
+
+        reject(resultResponse('Delete Failed', {}, 500));
+      }
+    });
+  }
+
+  updateCategory(req: Request) {
+    return new Promise(async (resolve, reject) => {
+      try {
+      } catch (e) {
+        logger.error(e);
+
+        reject(resultResponse('Update Failed', {}, 500));
       }
     });
   }

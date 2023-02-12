@@ -1,5 +1,4 @@
 import multer from 'multer';
-const db = require('../../database/models');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

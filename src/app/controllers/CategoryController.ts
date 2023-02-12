@@ -15,16 +15,6 @@ class CategoryController {
     }
   }
 
-  async getProducts(req: Request, res: Response) {
-    try {
-      let data = (await CRUDService.getAllProduct(req)) as ResponseProduct;
-      return res.status(Number(data.status)).json(data);
-    } catch (e) {
-      const error = e as ResponseInterface;
-      return res.status(Number(error.status)).json(error);
-    }
-  }
-
   async create(req: Request, res: Response) {
     try {
       const data = (await CRUDService.createCategory(req)) as ResponseCategory;
@@ -42,6 +32,16 @@ class CategoryController {
     } catch (e) {
       const error = e as ResponseInterface;
       return res.status(Number(error.status)).json(error);
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    try {
+      const data = (await CRUDService.deleteCategories(req)) as ResponseCategory;
+      return res.status(data.status).json(data);
+    } catch (e) {
+      const error = e as ResponseInterface;
+      return res.status(error.status).json(error);
     }
   }
 }
