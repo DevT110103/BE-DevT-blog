@@ -6,19 +6,25 @@ module.exports = {
     return queryInterface.bulkInsert('Categories', [
       {
         name: 'Web',
-        thumbnail: 'http://localhost:8080/images/thumnail-1.png',
+        thumbnail: 'http://localhost:8080/uploads/thumnail-1.png',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'App',
+        thumbnail: 'http://localhost:8080/uploads/thumnail-1.png',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         name: 'Game',
-        thumbnail: 'http://localhost:8080/images/thumnail-1.png',
+        thumbnail: 'http://localhost:8080/uploads/thumnail-1.png',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        name: 'Learn code',
-        thumbnail: 'http://localhost:8080/images/thumnail-1.png',
+        name: 'Post',
+        thumbnail: 'http://localhost:8080/uploads/thumnail-1.png',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
