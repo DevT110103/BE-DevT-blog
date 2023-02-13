@@ -9,5 +9,6 @@ router.get('/', categoryController.index);
 router.post('/create', upload.single('thumbnail'), categoryController.create);
 router.get('/search', categoryController.search);
 router.delete('/delete', categoryController.delete);
+router.post('/update', upload.single('thumbnail'), categoryController.update);
 
 export default router;

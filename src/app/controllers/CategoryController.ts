@@ -44,6 +44,16 @@ class CategoryController {
       return res.status(error.status).json(error);
     }
   }
+
+  async update(req: Request, res: Response) {
+    try {
+      const data = (await CRUDService.updateCategory(req)) as ResponseCategory;
+      return res.status(data.status).json(data);
+    } catch (e) {
+      const error = e as ResponseInterface;
+      return res.status(error.status).json(error);
+    }
+  }
 }
 
 export default new CategoryController();
