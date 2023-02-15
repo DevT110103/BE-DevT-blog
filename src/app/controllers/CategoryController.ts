@@ -27,7 +27,7 @@ class CategoryController {
 
   async search(req: Request, res: Response) {
     try {
-      const data = (await SearchService.search(req, res)) as ResponseCategory;
+      const data = (await SearchService.search(req)) as ResponseCategory;
       return res.status(data.status).json(data);
     } catch (e) {
       const error = e as ResponseInterface;

@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import { Response as ResponseInterface } from '../../interfaces';
 
-import CRUDProductService from '../services/Product.service';
+import CRUDService from '../services/products/CRUD.service';
 import { ResponseProduct } from '../../interfaces/product.interface';
+import Product from '../../database/models/product';
+import { Model } from 'sequelize';
 class ProductController {
   async index(req: Request, res: Response) {
     try {
-      let data = (await CRUDProductService.getAllProducts(req, res)) as ResponseProduct;
+      let data = (await CRUDService.getAllProducts(req)) as ResponseProduct;
       return res.status(Number(data.status)).json(data);
     } catch (e) {
       const error = e as ResponseInterface;
@@ -16,7 +18,17 @@ class ProductController {
 
   async create(req: Request, res: Response) {
     try {
-      const data = (await CRUDProductService.createProduct(req, res)) as ResponseProduct;
+      const data = (await CRUDService.createProduct(req, res)) as ResponseProduct;
+      return res.status(data.status).json(data);
+    } catch (e) {
+      const error = e as ResponseInterface;
+      return res.status(error.status).json(error);
+    }
+  }
+
+  async getProductByCategory(req: Request, res: Response) {
+    try {
+      const data = (await CRUDService.getProductsByCategory(req)) as ResponseProduct;
       return res.status(data.status).json(data);
     } catch (e) {
       const error = e as ResponseInterface;

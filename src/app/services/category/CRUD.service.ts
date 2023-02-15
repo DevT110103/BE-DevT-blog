@@ -4,12 +4,14 @@ import { unlink } from 'fs';
 import getItem from '../components/getItem';
 import logger from '../../../utils/logger';
 import resultResponse from '../../../utils/response';
-const db = require('../../../database/models');
+import Category from '../../../database/models/category';
+import { Model } from 'sequelize';
+import { CategoryModel } from '../../../interfaces/category.interface';
 
 class CRUDCategory {
   getAllCategories(req: Request) {
     const query = 'select * from categories';
-    return getItem(req, db.Category, query);
+    return getItem(req, Category, query);
   }
 
   createCategory(req: Request) {
@@ -18,7 +20,7 @@ class CRUDCategory {
         const name: string = req.body.nameCategory.trim();
         const image = req.file;
 
-        const isExistsName = await db.Category.findOne({
+        const isExistsName = await Category.findOne({
           where: {
             name: name,
           },
@@ -38,7 +40,7 @@ class CRUDCategory {
           }
           const thumbnail = path;
 
-          const data = await db.Category.create({ name, thumbnail });
+          const data = await Category.create({ name, thumbnail });
 
           resolve(resultResponse('Success', data));
         }
@@ -58,7 +60,7 @@ class CRUDCategory {
         if (id <= 0 || isNaN(id)) {
           reject(resultResponse('Id Is Valid', {}, 404));
         } else {
-          const countExists = await db.Category.count({
+          const countExists = await Category.count({
             where: {
               id,
             },
@@ -67,11 +69,13 @@ class CRUDCategory {
           if (countExists <= 0) {
             reject(resultResponse('Category is not exists', {}, 400));
           } else {
-            const category = await db.Category.findAll({ where: { id } });
-            const pathImgOld = String(category[0].thumbnail).split('/')[String(category[0].thumbnail).split('/').length - 1];
+            const category = await Category.findAll({ where: { id } });
+            const pathImgOld = String(category[0].dataValues.thumbnail).split('/')[
+              String(category[0].dataValues.thumbnail).split('/').length - 1
+            ];
             unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
 
-            await db.Category.destroy({
+            await Category.destroy({
               where: {
                 id: id,
               },
@@ -89,6 +93,17 @@ class CRUDCategory {
     });
   }
 
+  private setUrlThumbnail(file: Express.Multer.File) {
+    let path: string = '';
+    if (process.env.NODE_ENV === 'development') {
+      path = `http://127.0.0.1:8080/uploads/${file.filename}`;
+    } else {
+      path = ``;
+    }
+
+    return path;
+  }
+
   updateCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
       const name = req.body.nameCategory;
@@ -96,35 +111,45 @@ class CRUDCategory {
       const id = Number(req.query.id);
 
       try {
-        if (id <= 0 && file) {
+        if ((id <= 0 || isNaN(id)) && file) {
           reject(resultResponse('Id is valid', {}, 500));
           unlink(`./src/public/uploads/${file.filename}`, (err) => {});
-        } else if (!name && file) {
-          reject(resultResponse('Name is valid', {}, 500));
-          unlink(`./src/public/uploads/${file.filename}`, (err) => {});
-        } else if (!file) {
-          reject(resultResponse('Thumbnail is valid', {}, 500));
         } else {
-          const category = await db.Category.findAll({ where: { id } });
+          const categories = (await Category.findAll({ where: { id } })) as Model<CategoryModel>[];
 
-          if (Array.from(category).length <= 0 || !category) {
+          if (Array.from(categories).length <= 0) {
             reject(resultResponse('Id is valid', {}, 404));
           } else {
-            if (category[0].name === name) {
-              reject(resultResponse('Name is exists', {}, 500));
-              unlink(`./src/public/uploads/${file.filename}`, (err) => {});
-            } else {
-              let path: string = '';
-              const pathImgOld = String(category[0].thumbnail).split('/')[String(category[0].thumbnail).split('/').length - 1];
+            if (!name && file) {
+              const pathImgOld = String(categories[0].dataValues.thumbnail).split('/')[
+                String(categories[0].dataValues.thumbnail).split('/').length - 1
+              ];
               unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
-              if (process.env.NODE_ENV === 'development') {
-                path = `http://127.0.0.1:8080/uploads/${file.filename}`;
-              } else {
-                path = ``;
-              }
-              const thumbnail = path;
-              await db.Category.update({ name, thumbnail }, { where: { id } });
+
+              const thumbnail = this.setUrlThumbnail(file);
+              await Category.update({ thumbnail }, { where: { id } });
               resolve(resultResponse('Update success', {}));
+            } else if (name && !file) {
+              await Category.update({ name }, { where: { id } });
+              resolve(resultResponse('Update success', {}));
+            } else if (name && file) {
+              let path: string = '';
+
+              const pathImgOld = String(categories[0].dataValues.thumbnail).split('/')[
+                String(categories[0].dataValues.thumbnail).split('/').length - 1
+              ];
+
+              unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
+
+              const thumbnail = this.setUrlThumbnail(file);
+
+              await Category.update({ name, thumbnail }, { where: { id } });
+
+              resolve(resultResponse('Update success', {}));
+            } else {
+              unlink(`./src/public/uploads/${file?.filename}`, (err) => {});
+
+              reject(resultResponse('Update failed', {}, 500));
             }
           }
         }
