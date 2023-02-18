@@ -88,7 +88,7 @@ class CRUDProduct {
         if (process.env.NODE_ENV === 'development') {
           logger.error(e);
         }
-        return reject(resultResponse('Create failed', {}, 500));
+        return reject(resultResponse('Create failed', {}, 400));
       }
     });
   }
