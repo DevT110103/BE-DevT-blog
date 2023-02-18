@@ -1,15 +1,16 @@
 import { Request, Response } from 'express';
 
-import getItem from '../components/getItem';
+import getItem from '../components/components';
 import logger from '../../../utils/logger';
 import resultResponse from '../../../utils/response';
 import Product from '../../../database/models/product';
 import Category from '../../../database/models/category';
+import components from '../components/components';
 
 class CRUDProduct {
   getAllProducts(req: Request) {
     const query = 'select  *  from products';
-    return getItem(req, Product, query);
+    return components.getItem(req, Product);
   }
 
   getProductsByCategory(req: Request) {

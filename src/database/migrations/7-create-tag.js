@@ -8,22 +8,25 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT.UNSIGNED,
       },
       post_id: {
+        type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
-        type: Sequelize.INTEGER,
         references: {
           model: 'Posts',
           key: 'id',
         },
         onUpdate: 'cascade',
+        onDelete: 'cascade',
       },
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
+        allowNull: false,
       },
       color: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

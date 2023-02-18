@@ -8,29 +8,30 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT.UNSIGNED,
       },
       title: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
+        allowNull: false,
       },
       sub_title: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         allowNull: true,
       },
       image: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
         allowNull: true,
       },
       desc: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(500),
         allowNull: true,
       },
-      view_amount: {
-        type: Sequelize.INTEGER,
+      view_count: {
+        type: Sequelize.INTEGER.UNSIGNED,
         defaultValue: 0,
       },
       category_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Categories',
@@ -39,7 +40,7 @@ module.exports = {
         onUpdate: 'cascade',
       },
       user_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Users',

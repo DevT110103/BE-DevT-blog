@@ -7,36 +7,42 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT.UNSIGNED,
       },
       first_name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
+        allowNull: false,
       },
       last_name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
+        allowNull: false,
       },
       email: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         unique: true,
+        allowNull: false,
       },
       phone_number: {
-        type: Sequelize.STRING,
+        type: Sequelize.BIGINT.UNSIGNED,
         unique: true,
       },
       address: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
+        allowNull: true,
       },
       password: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
+        allowNull: false,
       },
       role_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
+        type: Sequelize.BIGINT.UNSIGNED,
+        allowNull: true,
         references: {
           model: 'Roles',
           key: 'id',
         },
-        onUpdate: 'cascade',
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
       },
       createdAt: {
         allowNull: false,

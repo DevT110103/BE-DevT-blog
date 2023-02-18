@@ -12,4 +12,8 @@ const Product = db.define('Product', {
   category_id: DataTypes.INTEGER,
 });
 
+Product.belongsTo(Category, {
+  foreignKey: 'category_id',
+});
+
 export default Product;

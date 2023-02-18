@@ -1,17 +1,17 @@
 import { Request } from 'express';
 import { unlink } from 'fs';
 
-import getItem from '../components/getItem';
+import getItem from '../components/components';
 import logger from '../../../utils/logger';
 import resultResponse from '../../../utils/response';
 import Category from '../../../database/models/category';
 import { Model } from 'sequelize';
 import { CategoryModel } from '../../../interfaces/category.interface';
+import component from '../components';
 
 class CRUDCategory {
   getAllCategories(req: Request) {
-    const query = 'select * from categories';
-    return getItem(req, Category, query);
+    return component.getItem(req, Category);
   }
 
   createCategory(req: Request) {

@@ -4,36 +4,37 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Products', {
       id: {
+        type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
       },
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
+        allowNull: false,
       },
       seo_name: {
-        type: Sequelize.STRING,
-        allowNull: true,
+        type: Sequelize.STRING(50),
+        allowNull: false,
       },
       link: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
         allowNull: true,
       },
       thumbnail: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
       },
-      view_amount: {
-        type: Sequelize.INTEGER,
+      view_count: {
+        type: Sequelize.INTEGER(20),
         allowNull: true,
         defaultValue: 0,
       },
       desc: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(500),
         allowNull: true,
       },
       category_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
           model: 'Categories',

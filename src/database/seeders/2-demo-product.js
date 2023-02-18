@@ -9,7 +9,7 @@ module.exports = {
         seo_name: 'Web_ban_hang',
         link: '',
         thumbnail: 'http://localhost:8080/uploads/thumnail-1.png',
-        view_amount: 0,
+        view_count: 0,
         desc: '',
         category_id: 1,
         createdAt: new Date(),

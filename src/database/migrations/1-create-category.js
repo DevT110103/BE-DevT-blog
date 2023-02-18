@@ -2,20 +2,21 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Categories', {
       id: {
+        type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        autoIncrement: true,
       },
       name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         unique: true,
+        allowNull: false,
       },
       thumbnail: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
       },
       createdAt: {
         allowNull: false,
