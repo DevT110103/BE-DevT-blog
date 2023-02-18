@@ -3,14 +3,14 @@
 	"version": "1.0.0",
 	"main": "src/server.js",
 	"license": "MIT",
+	"scripts": {
+		"dev": "ts-node-dev --respawn src/server.ts",
+		"build": "tsc"
+	},
 	"husky": {
 		"hooks": {
 			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
 		}
-	},
-	"scripts": {
-		"dev": "ts-node-dev --respawn src/server.ts",
-		"build": "tsc"
 	},
 	"dependencies": {
 		"@types/body-parser": "^1.19.2",
