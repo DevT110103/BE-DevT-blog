@@ -50,7 +50,7 @@ class CRUDProduct {
     });
   }
 
-  createProduct(req: Request, res: Response) {
+  createProduct(req: Request) {
     return new Promise(async (resolve, reject) => {
       try {
       } catch (e) {}

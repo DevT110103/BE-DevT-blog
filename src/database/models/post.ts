@@ -7,7 +7,7 @@ const Post = db.define('Post', {
   sub_title: DataTypes.STRING,
   image: DataTypes.STRING,
   desc: DataTypes.STRING,
-  view_amount: DataTypes.STRING,
+  view_count: DataTypes.STRING,
   category_id: DataTypes.INTEGER,
   user_id: DataTypes.INTEGER,
 });

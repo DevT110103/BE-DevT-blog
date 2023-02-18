@@ -5,19 +5,15 @@ import resultResponse from '../../../utils/response';
 class Components {
   getItem(req: Request, model: ModelCtor<Model<any, any>>) {
     return new Promise(async (resolve, reject) => {
-      const page = Number(req.query.p);
-      const limit = Number(req.query.l);
+      const page = Number(req.query.p) || 1;
+      const limit = Number(req.query.l) || 10;
       const offset = (page - 1) * limit;
       const id: number = Number(req.query.id);
 
       try {
         if (isNaN(id) || !id || id <= 0) {
-          if (!isNaN(page) && !isNaN(limit) && page && limit) {
-            const result = await model.findAll({ offset, limit, order: [['view_amount', 'DESC']] });
-            resolve(resultResponse('Get item success', result));
-          } else {
-            reject(resultResponse('Failed', {}, 500));
-          }
+          const result = await model.findAll({ offset, limit });
+          resolve(resultResponse('Get item success', result));
         } else {
           const dataDb = await model.findOne({
             where: {
@@ -26,11 +22,11 @@ class Components {
           });
 
           if (dataDb) {
-            if (dataDb.dataValues.view_amount >= 0) {
-              const oldViewAmount = Number(dataDb.dataValues.view_amount);
+            if (dataDb.dataValues.view_count >= 0) {
+              const oldViewAmount = Number(dataDb.dataValues.view_count);
               await model.update(
                 {
-                  view_amount: oldViewAmount + 1,
+                  view_count: oldViewAmount + 1,
                 },
                 {
                   where: {

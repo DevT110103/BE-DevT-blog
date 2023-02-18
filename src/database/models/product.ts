@@ -8,7 +8,7 @@ const Product = db.define('Product', {
   link: DataTypes.STRING,
   desc: DataTypes.STRING,
   thumbnail: DataTypes.STRING,
-  view_amount: DataTypes.INTEGER,
+  view_count: DataTypes.INTEGER,
   category_id: DataTypes.INTEGER,
 });
 
