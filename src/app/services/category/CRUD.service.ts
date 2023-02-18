@@ -10,19 +10,27 @@ import { CategoryModel } from '../../../interfaces/category.interface';
 import component from '../components';
 
 class CRUDCategory {
+  private setUrlThumbnail(file: Express.Multer.File): string {
+    if (process.env.NODE_ENV === 'development') {
+      return `http://127.0.0.1:8080/uploads/${file.filename}`;
+    } else {
+      return '';
+    }
+  }
+
   getAllCategories(req: Request) {
-    return component.getItem(req, Category);
+    const categories = component.getItem(req, Category);
+    return categories;
   }
 
   createCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
+      const name: string = req.body.nameCategory.trim();
+      const image = req.file;
       try {
-        const name: string = req.body.nameCategory.trim();
-        const image = req.file;
-
         const isExistsName = await Category.findOne({
           where: {
-            name: name,
+            name,
           },
         });
 
@@ -32,16 +40,8 @@ class CRUDCategory {
           }
           reject(resultResponse('Failed', {}, 500));
         } else {
-          let path: string = '';
-          if (process.env.NODE_ENV === 'development') {
-            path = `http://127.0.0.1:8080/uploads/${image.filename}`;
-          } else {
-            path = ``;
-          }
-          const thumbnail = path;
-
+          const thumbnail = this.setUrlThumbnail(image);
           const data = await Category.create({ name, thumbnail });
-
           resolve(resultResponse('Success', data));
         }
       } catch (e) {
@@ -69,17 +69,12 @@ class CRUDCategory {
           if (countExists <= 0) {
             reject(resultResponse('Category is not exists', {}, 400));
           } else {
-            const category = await Category.findAll({ where: { id } });
-            const pathImgOld = String(category[0].dataValues.thumbnail).split('/')[
-              String(category[0].dataValues.thumbnail).split('/').length - 1
-            ];
+            const category = await Category.findByPk(id);
+            const pathImgOld = String(category?.dataValues.thumbnail).split('/').pop();
             unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
 
-            await Category.destroy({
-              where: {
-                id: id,
-              },
-            });
+            await category?.destroy();
+
             resolve(resultResponse('Delete success', {}));
           }
         }
@@ -93,17 +88,6 @@ class CRUDCategory {
     });
   }
 
-  private setUrlThumbnail(file: Express.Multer.File) {
-    let path: string = '';
-    if (process.env.NODE_ENV === 'development') {
-      path = `http://127.0.0.1:8080/uploads/${file.filename}`;
-    } else {
-      path = ``;
-    }
-
-    return path;
-  }
-
   updateCategory(req: Request) {
     return new Promise(async (resolve, reject) => {
       const name = req.body.nameCategory;
@@ -111,54 +95,55 @@ class CRUDCategory {
       const id = Number(req.query.id);
 
       try {
-        if ((id <= 0 || isNaN(id)) && file) {
-          reject(resultResponse('Id is valid', {}, 500));
-          unlink(`./src/public/uploads/${file.filename}`, (err) => {});
-        } else {
-          const categories = (await Category.findAll({ where: { id } })) as Model<CategoryModel>[];
-
-          if (Array.from(categories).length <= 0) {
-            reject(resultResponse('Id is valid', {}, 404));
-          } else {
-            if (!name && file) {
-              const pathImgOld = String(categories[0].dataValues.thumbnail).split('/')[
-                String(categories[0].dataValues.thumbnail).split('/').length - 1
-              ];
-              unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
-
-              const thumbnail = this.setUrlThumbnail(file);
-              await Category.update({ thumbnail }, { where: { id } });
-              resolve(resultResponse('Update success', {}));
-            } else if (name && !file) {
-              await Category.update({ name }, { where: { id } });
-              resolve(resultResponse('Update success', {}));
-            } else if (name && file) {
-              let path: string = '';
-
-              const pathImgOld = String(categories[0].dataValues.thumbnail).split('/')[
-                String(categories[0].dataValues.thumbnail).split('/').length - 1
-              ];
-
-              unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
-
-              const thumbnail = this.setUrlThumbnail(file);
-
-              await Category.update({ name, thumbnail }, { where: { id } });
-
-              resolve(resultResponse('Update success', {}));
-            } else {
-              unlink(`./src/public/uploads/${file?.filename}`, (err) => {});
-
-              reject(resultResponse('Update failed', {}, 500));
-            }
+        if (id <= 0 || isNaN(id)) {
+          if (file) {
+            unlink(`./src/public/uploads/${file.filename}`, (err) => {});
           }
+          return reject(resultResponse('Id is valid', {}, 500));
         }
+
+        const category = (await Category.findByPk(id)) as Model<CategoryModel>;
+
+        if (!category) {
+          return reject(resultResponse('Id is valid', {}, 404));
+        }
+
+        if (name && file) {
+          const pathImgOld = String(category.dataValues.thumbnail).split('/').pop();
+
+          await unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
+
+          const thumbnail = this.setUrlThumbnail(file);
+
+          await category.update({ name, thumbnail });
+          return resolve(resultResponse('Update success', {}));
+        }
+        if (name) {
+          await category.update({ name });
+          return resolve(resultResponse('Update success', {}));
+        }
+
+        if (file) {
+          const pathImgOld = String(category.dataValues.thumbnail).split('/').pop();
+
+          await unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
+
+          const thumbnail = this.setUrlThumbnail(file);
+
+          await category.update({ thumbnail });
+
+          return resolve(resultResponse('Update success', {}));
+        }
+
+        return reject(resultResponse('Update failed', {}, 500));
       } catch (e) {
         if (process.env.NODE_ENV === 'development') {
           logger.error(e);
         }
-        unlink(`./src/public/uploads/${file?.filename}`, (err) => {});
-        reject(resultResponse('Update Failed', {}, 500));
+        if (file) {
+          await unlink(`./src/public/uploads/${file.filename}`, (err) => {});
+        }
+        return reject(resultResponse('Update Failed', {}, 500));
       }
     });
   }

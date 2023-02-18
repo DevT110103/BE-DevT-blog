@@ -3,8 +3,6 @@ import { Response as ResponseInterface } from '../../interfaces';
 
 import CRUDService from '../services/products/CRUD.service';
 import { ResponseProduct } from '../../interfaces/product.interface';
-import Product from '../../database/models/product';
-import { Model } from 'sequelize';
 class ProductController {
   async index(req: Request, res: Response) {
     try {
@@ -18,7 +16,7 @@ class ProductController {
 
   async create(req: Request, res: Response) {
     try {
-      const data = (await CRUDService.createProduct(req, res)) as ResponseProduct;
+      const data = (await CRUDService.createProduct(req)) as ResponseProduct;
       return res.status(data.status).json(data);
     } catch (e) {
       const error = e as ResponseInterface;
