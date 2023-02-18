@@ -8,6 +8,8 @@ import Category from '../../../database/models/category';
 import components from '../components/components';
 import { Model } from 'sequelize';
 import { CategoryModel } from '../../../interfaces/category.interface';
+import { ProductModel } from '../../../interfaces/product.interface';
+import { unlink } from 'fs';
 
 class CRUDProduct {
   getAllProducts(req: Request) {
@@ -89,6 +91,77 @@ class CRUDProduct {
           logger.error(e);
         }
         return reject(resultResponse('Create failed', {}, 500));
+      }
+    });
+  }
+
+  updateProduct(req: Request) {
+    return new Promise(async (resolve, reject) => {
+      const id = Number(req.query.id);
+      const name = req.body.pName as string;
+      const seo_name = req.body.pSeoName as string;
+      const link = req.body.pLink as string;
+      const file = req.file as Express.Multer.File;
+      const desc = req.body.pDesc as string;
+      const category_id = req.body.pCategoryId as number;
+
+      let thumbnail = '';
+      try {
+        if (!id || isNaN(id) || id <= 0) return reject(resultResponse('Id is valid', {}, 404));
+        const product = (await Product.findByPk(id)) as Model<ProductModel>;
+        if (!product) reject(resultResponse('Product empty', {}, 404));
+
+        if (file) {
+          thumbnail = components.setUrlThumbnail(file);
+        }
+        const updateValue: Partial<ProductModel> = {};
+
+        if (name) updateValue.name = name;
+
+        if (seo_name) updateValue.seo_name = seo_name;
+
+        if (link) updateValue.link = seo_name;
+
+        if (thumbnail) updateValue.thumbnail = thumbnail;
+
+        if (desc) updateValue.desc = desc;
+
+        if (category_id) updateValue.category_id = category_id;
+
+        await product.update(updateValue);
+        return resolve(resultResponse('Product updated', {}));
+      } catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+          logger.error(e);
+        }
+
+        reject(resultResponse('Update Failed', {}, 500));
+      }
+    });
+  }
+
+  deleteProduct(req: Request) {
+    return new Promise(async (resolve, reject) => {
+      const id = Number(req.query.id);
+      try {
+        if (!id || isNaN(id) || id <= 0) return reject(resultResponse('id is valid', {}, 400));
+
+        const product = await Product.findByPk(id);
+
+        if (!product) return reject(resultResponse('Product empty', {}, 404));
+
+        const thumbnailName = String(product.dataValues.thumbnail).split('/').pop();
+        unlink(`./src/public/uploads/${thumbnailName}`, (err) => {});
+
+        product.destroy();
+
+        return resolve(resultResponse('Deleted', {}));
+      } catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+          logger.error(e);
+        }
+
+        reject(resultResponse('Update Failed', {}, 500));
       }
     });
   }

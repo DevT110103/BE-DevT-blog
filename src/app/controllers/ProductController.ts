@@ -40,21 +40,26 @@ class ProductController {
   }
 
   async update(req: Request, res: Response) {
+    const file = req.file;
     try {
-      const data = (await CRUDService.createProduct(req)) as ResponseProduct;
+      const data = (await CRUDService.updateProduct(req)) as ResponseProduct;
       return res.status(data.status).json(data);
     } catch (e) {
       const error = e as ResponseInterface;
+      if (file) {
+        unlink(`./src/public/uploads/${file.filename}`, (err) => {});
+      }
       return res.status(error.status).json(error);
     }
   }
 
   async delete(req: Request, res: Response) {
     try {
-      const data = (await CRUDService.createProduct(req)) as ResponseProduct;
+      const data = (await CRUDService.deleteProduct(req)) as ResponseProduct;
       return res.status(data.status).json(data);
     } catch (e) {
       const error = e as ResponseInterface;
+
       return res.status(error.status).json(error);
     }
   }
