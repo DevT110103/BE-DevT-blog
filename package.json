@@ -10,7 +10,8 @@
 	},
 	"scripts": {
 		"dev": "ts-node-dev --respawn src/server.ts",
-		"build": "tsc"
+		"build": "tsc",
+		"commitmsg": "commitlint -E HUSKY_GIT_PARAMS"
 	},
 	"dependencies": {
 		"@types/body-parser": "^1.19.2",
