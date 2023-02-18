@@ -3,6 +3,11 @@
 	"version": "1.0.0",
 	"main": "src/server.js",
 	"license": "MIT",
+	"husky": {
+		"hooks": {
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+		}
+	},
 	"scripts": {
 		"dev": "ts-node-dev --respawn src/server.ts",
 		"build": "tsc"
@@ -20,8 +25,11 @@
 		"sequelize": "^6.28.0"
 	},
 	"devDependencies": {
+		"@commitlint/cli": "^17.4.4",
+		"@commitlint/config-conventional": "^17.4.4",
 		"@types/express": "^4.17.16",
 		"@types/node": "^18.11.18",
+		"husky": "^8.0.3",
 		"nodemon": "^2.0.20",
 		"sequelize-cli": "^6.6.0",
 		"ts-node": "^10.9.1",
