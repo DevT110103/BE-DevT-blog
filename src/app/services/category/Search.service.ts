@@ -1,22 +1,15 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { Op } from 'sequelize';
 
-import { Response as ResponseInterFace } from '../../../interfaces';
-const db = require('../../../database/models');
+import resultResponse from '../../../utils/response';
+import Category from '../../../database/models/category';
 class SearchCategory {
-  async search(req: Request, res: Response) {
+  async search(req: Request) {
     return new Promise(async (resolve, reject) => {
       const valueSearch = req.query.q;
 
       try {
-        const response: ResponseInterFace = {
-          status: 200,
-          error: false,
-          message: 'Search success',
-          data: {},
-        };
-
-        const result = await db.Category.findAll({
+        const result = await Category.findAll({
           where: {
             name: {
               [Op.or]: [
@@ -31,21 +24,9 @@ class SearchCategory {
           },
         });
 
-        if (result === null) {
-          resolve(response);
-        } else {
-          response.data = result;
-
-          resolve(response);
-        }
+        resolve(resultResponse('Search success', result));
       } catch {
-        const response: ResponseInterFace = {
-          status: 400,
-          error: true,
-          message: 'Search failed',
-          data: {},
-        };
-        reject(response);
+        reject(resultResponse('Search failed', {}, 500));
       }
     });
   }

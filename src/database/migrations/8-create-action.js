@@ -1,36 +1,34 @@
-'use strict';
+'use-strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Products', {
+    await queryInterface.createTable('Actions', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        type: Sequelize.BIGINT.UNSIGNED,
       },
-      title: {
-        type: Sequelize.STRING,
-      },
-      sub_title: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      thumbnail: {
-        type: Sequelize.STRING,
-      },
-      desc: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      category_id: {
-        type: Sequelize.INTEGER,
+      user_id: {
         allowNull: false,
+        type: Sequelize.BIGINT.UNSIGNED,
         references: {
-          model: 'Categories',
+          model: 'Users',
           key: 'id',
         },
         onUpdate: 'cascade',
+        onDelete: 'cascade',
+      },
+      post_id: {
+        allowNull: false,
+        type: Sequelize.BIGINT.UNSIGNED,
+        references: {
+          model: 'Posts',
+          key: 'id',
+        },
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
       },
       createdAt: {
         allowNull: false,
@@ -43,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Products');
+    await queryInterface.dropTable('Actions');
   },
 };

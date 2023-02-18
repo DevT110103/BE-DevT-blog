@@ -1,13 +1,13 @@
 import { Response } from '.';
 
-export interface CategoryDB {
-  id: string | number;
+export interface CategoryModel {
+  id: number;
   name: string;
-  thumbnail_id: string | number;
+  thumbnail: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface ResponseCategory extends Response {
-  data: CategoryDB[];
+  data: CategoryModel[];
 }
