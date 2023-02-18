@@ -52,6 +52,14 @@ class Components {
       }
     });
   }
+
+  setUrlThumbnail(file: Express.Multer.File): string {
+    if (process.env.NODE_ENV === 'development') {
+      return `http://127.0.0.1:8080/uploads/${file.filename}`;
+    } else {
+      return '';
+    }
+  }
 }
 
 export default new Components();

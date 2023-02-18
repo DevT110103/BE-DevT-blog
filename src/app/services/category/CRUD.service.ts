@@ -10,14 +10,6 @@ import { CategoryModel } from '../../../interfaces/category.interface';
 import component from '../components';
 
 class CRUDCategory {
-  private setUrlThumbnail(file: Express.Multer.File): string {
-    if (process.env.NODE_ENV === 'development') {
-      return `http://127.0.0.1:8080/uploads/${file.filename}`;
-    } else {
-      return '';
-    }
-  }
-
   getAllCategories(req: Request) {
     const categories = component.getItem(req, Category);
     return categories;
@@ -40,7 +32,7 @@ class CRUDCategory {
           }
           reject(resultResponse('Failed', {}, 500));
         } else {
-          const thumbnail = this.setUrlThumbnail(image);
+          const thumbnail = component.setUrlThumbnail(image);
           const data = await Category.create({ name, thumbnail });
           resolve(resultResponse('Success', data));
         }
@@ -113,7 +105,7 @@ class CRUDCategory {
 
           await unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
 
-          const thumbnail = this.setUrlThumbnail(file);
+          const thumbnail = component.setUrlThumbnail(file);
 
           await category.update({ name, thumbnail });
           return resolve(resultResponse('Update success', {}));
@@ -128,7 +120,7 @@ class CRUDCategory {
 
           await unlink(`./src/public/uploads/${pathImgOld}`, (err) => {});
 
-          const thumbnail = this.setUrlThumbnail(file);
+          const thumbnail = component.setUrlThumbnail(file);
 
           await category.update({ thumbnail });
 

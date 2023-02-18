@@ -3,6 +3,7 @@ import { Response as ResponseInterface } from '../../interfaces';
 
 import CRUDService from '../services/products/CRUD.service';
 import { ResponseProduct } from '../../interfaces/product.interface';
+import { unlink } from 'fs';
 class ProductController {
   async index(req: Request, res: Response) {
     try {
@@ -15,6 +16,30 @@ class ProductController {
   }
 
   async create(req: Request, res: Response) {
+    const file = req.file;
+    try {
+      const data = (await CRUDService.createProduct(req)) as ResponseProduct;
+      return res.status(data.status).json(data);
+    } catch (e) {
+      const error = e as ResponseInterface;
+      if (file) {
+        unlink(`./src/public/uploads/${file.filename}`, (err) => {});
+      }
+      return res.status(error.status).json(error);
+    }
+  }
+
+  async getProductByCategory(req: Request, res: Response) {
+    try {
+      const data = (await CRUDService.getProductsByCategory(req)) as ResponseProduct;
+      return res.status(data.status).json(data);
+    } catch (e) {
+      const error = e as ResponseInterface;
+      return res.status(error.status).json(error);
+    }
+  }
+
+  async update(req: Request, res: Response) {
     try {
       const data = (await CRUDService.createProduct(req)) as ResponseProduct;
       return res.status(data.status).json(data);
@@ -24,9 +49,9 @@ class ProductController {
     }
   }
 
-  async getProductByCategory(req: Request, res: Response) {
+  async delete(req: Request, res: Response) {
     try {
-      const data = (await CRUDService.getProductsByCategory(req)) as ResponseProduct;
+      const data = (await CRUDService.createProduct(req)) as ResponseProduct;
       return res.status(data.status).json(data);
     } catch (e) {
       const error = e as ResponseInterface;
